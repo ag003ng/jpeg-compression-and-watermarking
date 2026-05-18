@@ -302,7 +302,7 @@ def process_DCT(data : dataImage):
 
 # CITRA WATERMARK VISUAL
 WM_INDEX = 19 # Indeks koefisien frekuensi menengah (Mid-Band) yang aman
-ALPHA = 200 # Kekuatan penyisipan (Gain Factor)
+ALPHA = 10 # Kekuatan penyisipan (Gain Factor)
 
 def embed_visual_binary_watermark(data: dataImage, watermark_path):
     """
@@ -347,7 +347,7 @@ def embed_visual_binary_watermark(data: dataImage, watermark_path):
         new_block = list(block)
         
         # Rumus penyisipan frekuensi menengah (additive): Coeff = Coeff + (Alpha * Piksel_Watermark)
-        new_block[WM_INDEX] += ALPHA * pixel_logo
+        new_block[WM_INDEX] = ALPHA * pixel_logo
         watermarked_dct_y.append(new_block)
         
     return watermarked_dct_y, citra_watermark_grid
@@ -413,6 +413,25 @@ def process_quantization(data: dataImage, quality):
         
     print("Proses Kuantisasi Selesai!")
 
+def apply_rle(zz_block):
+    """
+    Melakukan Run-Length Encoding sederhana.
+    Mencari rentetan angka 0 di akhir blok dan menggantinya dengan 'EOB'.
+    """
+    # Cari indeks angka bukan nol yang paling terakhir di dalam blok
+    last_non_zero_idx = 63
+    while last_non_zero_idx > 0 and zz_block[last_non_zero_idx] == 0:
+        last_non_zero_idx -= 1
+        
+    # Ambil data dari indeks 0 sampai indeks bukan nol terakhir
+    rle_block = zz_block[:last_non_zero_idx + 1]
+    
+    # Jika masih ada sisa tempat di blok (artinya ujungnya adalah 0), tambahkan 'EOB'
+    if last_non_zero_idx < 63:
+        rle_block.append('EOB')
+        
+    return rle_block
+
 def apply_zigzag(block):
     """
     Mengurutkan 64 elemen blok kuantisasi menjadi urutan Zig-Zag.
@@ -443,8 +462,10 @@ def process_zigzag_and_dc(quantized_blocks):
         current_dc = zz_block[0]
         zz_block[0] = current_dc - prev_dc
         prev_dc = current_dc
+
+        rle_result = apply_rle(zz_block)
         
-        processed_blocks.append(zz_block)
+        processed_blocks.append(rle_result)
         
     return processed_blocks
     
@@ -526,11 +547,9 @@ if __name__ == "__main__":
         TARGET_KUALITAS = 80
         print(f"\n[5/6] Memproses Kuantisasi (Kualitas: {TARGET_KUALITAS}%)...")
         process_quantization(img_data, quality=TARGET_KUALITAS)
-        print(img_data.quant_y[0])
         
         print("\n[6/6] Memproses Entropy Coding (Huffman)...")
         compressed_bytes = encode_entropy_huffman(img_data)
-        print(img_data.rle_y[0])
         
         print("\n[7/7] Menyimpan Paket Kompresi (.pkl)...")
         paket_kompresi = {

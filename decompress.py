@@ -69,16 +69,38 @@ def start_decompress(file_pkl):
     stream_cb = data_stream[len_y : len_y+len_cb]
     stream_cr = data_stream[len_y+len_cb : len_y+len_cb+len_cr]
 
-    def stream_to_blocks(stream, total_blocks):
-        """Mengubah stream 1D menjadi list blok 64, lalu inverse zig‑zag dan inverse DPCM."""
-        blok_flat = [list(stream[i:i+64]) for i in range(0, len(stream), 64)]
-        inverse_dpcm(blok_flat)
-        blok_normal = [inverse_zigzag(b) for b in blok_flat]
-        return blok_normal
+    def stream_to_blocks(stream):
+            """Mengubah stream 1D (dengan EOB) menjadi list blok 64, lalu inverse zig‑zag dan DPCM."""
+            blok_flat = []
+            current_block = []
+            
+            # --- PROSES INVERSE RLE ---
+            for item in stream:
+                if item == 'EOB':
+                    # Jika ketemu EOB, isi sisa tempat di blok tersebut dengan angka 0 sampai genap 64
+                    sisa_tempat = 64 - len(current_block)
+                    current_block.extend([0] * sisa_tempat)
+                    blok_flat.append(current_block)
+                    current_block = []
+                else:
+                    current_block.append(item)
+                    # Jika blok penuh (64 angka berharga tanpa ada 'EOB' sama sekali), langsung tutup blok
+                    if len(current_block) == 64:
+                        blok_flat.append(current_block)
+                        current_block = []
+                        
+            # Setelah dikembalikan jadi 64 elemen per blok, lakukan Inverse DPCM
+            inverse_dpcm(blok_flat)
+            
+            # Terakhir, lakukan Inverse Zig-Zag
+            blok_normal = [inverse_zigzag(b) for b in blok_flat]
+            
+            return blok_normal
 
-    blocks_y  = stream_to_blocks(stream_y,  len_y // 64)
-    blocks_cb = stream_to_blocks(stream_cb, len_cb // 64)
-    blocks_cr = stream_to_blocks(stream_cr, len_cr // 64)
+    # Pemanggilan fungsinya diubah sedikit (tidak perlu lagi hitung len // 64)
+    blocks_y  = stream_to_blocks(stream_y)
+    blocks_cb = stream_to_blocks(stream_cb)
+    blocks_cr = stream_to_blocks(stream_cr)
 
     # 4. Dekuantisasi dan Inverse DCT
     print("[4/6] Dekuantisasi dan Inverse DCT...")
@@ -143,7 +165,7 @@ def start_decompress(file_pkl):
             if idx < len(watermark_pixels):
                 wm_img.putpixel((h, v), watermark_pixels[idx])
                 idx += 1
-    wm_img.save("hasil_ekstrak_watermark.png")
+    wm_img.save("ekstrak_watermark.png")
 
     # Konversi YCbCr ke RGB
     # Rumus invers dari BT.601 yang Anda pakai di encoder
@@ -165,23 +187,12 @@ def start_decompress(file_pkl):
 
     # Simpan gambar hasil
     result = Image.fromarray(final_img)
-    result.save("hasil_rekonstruksi_gambar.png")
+    result.save("rekonstruksi_gambar.png")
 
     print("\n=== PROSES SELESAI ===")
     print("File yang dihasilkan:")
     print("- hasil_ekstrak_watermark.png")
     print("- hasil_rekonstruksi_gambar.png (warna penuh)")
-
-    # Di decoder, setelah ekstraksi:
-    values_at_wm_index = [blk[WM_INDEX] for blk in blocks_y]
-    print(f"\nDebug - Statistik koefisien di indeks {WM_INDEX}:")
-    print(f"  Min    : {min(values_at_wm_index)}")
-    print(f"  Max    : {max(values_at_wm_index)}")
-    print(f"  Mean   : {np.mean(values_at_wm_index):.2f}")
-    print(f"  Median : {np.median(values_at_wm_index):.2f}")
-    print(f"  > 0    : {sum(1 for v in values_at_wm_index if v > 0)}")
-    print(f"  <= 0   : {sum(1 for v in values_at_wm_index if v <= 0)}")
-    print(f"  == 0   : {sum(1 for v in values_at_wm_index if v == 0)}")
-
+    
 if __name__ == "__main__":
     start_decompress("compress.pkl")
