@@ -9,8 +9,8 @@ Projek ini mengimplementasikan **JPEG compression** dari awal (menggunakan Pytho
 ```
 
 jpeg-compression-and-watermarking/
-├── compress.py              # Kompresi JPEG + watermarking
-├── decompress.py            # Dekompresi + ekstraksi watermark
+├── embedded.py              # Kompresi + watermarking
+├── extracted.py            # Rekompresi + ekstraksi watermark
 ├── jpeg_encoder.c           # Minimalistic JPEG encoder (C)
 ├── foto-wajah.jpeg          # Contoh foto wajah (JPEG)
 ├── foto-wajah.ppm           # Contoh foto wajah (PPM)
@@ -30,46 +30,46 @@ jpeg-compression-and-watermarking/
 
 ## Alur Kompresi JPEG + Watermarking (Python)
 
-### 1. Baca PPM & Konversi RGB → YCbCr (`compress.py:111-174`)
+### 1. Baca PPM & Konversi RGB → YCbCr (`embedded.py:111-174`)
 - Baca file `.ppm` (format P6)
 - Ambil dimensi, hitung padding ke kelipatan 8 (`N_W`, `N_H`)
 - Konversi tiap piksel: RGB → YCbCr (standar ITU-R BT.601)
 - Area padding diisi `Y=0, Cb=128, Cr=128`
 
-### 2. Chroma Subsampling 4:2:0 (`compress.py:176-214`)
+### 2. Chroma Subsampling 4:2:0 (`embedded.py:176-214`)
 - Rata-rata blok 2×2 untuk Cb dan Cr
 - Ukuran Cb/Cr menyusut setengah (`sub_width = N_W/2`)
 
-### 3. DCT 8×8 per Blok (`compress.py:217-301`)
+### 3. DCT 8×8 per Blok (`embedded.py:217-301`)
 - Level shifting (-128)
 - 2D DCT terpisah (Separable): vertikal dulu, lalu horizontal
 - Gunakan lookup table cosinus agar cepat
 - Hasil: 64 koefisien frekuensi per blok (DC + 63 AC)
 
-### 4. Sisipkan Watermark Biner (`compress.py:303-353`)
+### 4. Sisipkan Watermark Biner (`embedded.py:303-353`)
 - Baca watermark PNG, konversi ke biner (1-bit)
 - Ukuran watermark = grid blok DCT (lebar/8 × tinggi/8)
 - Penyisipan: `C'[19] = C[19] + α × bit_watermark`
 - Koefisien indeks 19 = frekuensi menengah (mid-band)
 - `α = 200` (kekuatan watermark)
 
-### 5. Kuantisasi (`compress.py:355-414`)
+### 5. Kuantisasi (`embedded.py:355-414`)
 - Scale tabel kuantisasi standar JPEG (T.81) berdasarkan `quality`
 - Bagi tiap koefisien DCT dengan nilai tabel kuantisasi
 - Luma pakai `luma_q`, Chroma pakai `chroma_q`
 
-### 6. Zig-zag & DC Difference (`compress.py:416-449`)
+### 6. Zig-zag & DC Difference (`embedded.py:416-449`)
 - Urutkan 64 koefisien secara zig-zag (frekuensi rendah → tinggi)
 - Hitung selisih DC antar blok berurutan (DPCM)
 
-### 7. Entropy Coding (Huffman) (`compress.py:451-497`)
+### 7. Entropy Coding (Huffman) (`embedded.py:451-497`)
 - Gabung semua blok Y, Cb, Cr jadi satu stream
 - Gunakan library `dahuffman` untuk membuat Huffman tree dinamis
 - Simpan hasil kompresi + metadata ke `.pkl`
 
 ---
 
-## Alur Dekompresi (`decompress.py`)
+## Alur Dekompresi (`extracted.py`)
 
 1. Baca paket `.pkl` (Huffman codec, data biner, metadata)
 2. Decode Huffman → stream koefisien
@@ -121,7 +121,6 @@ Encoder minimalis dari Schier Michael (April 2011), fitur:
 | File | Deskripsi |
 |------|-----------|
 | `compress.pkl` | Paket kompresi (Huffman codec + data + metadata) |
-| `hasil_rekonstruksi_gambar.png` | Hasil dekompresi (warna penuh) |
-| `hasil_ekstrak_watermark.png` | Watermark biner hasil ekstraksi |
-| `hasil_foto_dengan_watermark.png` | Foto dengan watermark (dari visualizer/main.py) |
-| `hasil_foto_dibersihkan.png` | Foto hasil bersihkan watermark (dari visualizer/main.py) |
+| `ekstrak_watermark.png` | Watermark biner hasil ekstraksi |
+| `gambar_watermark.png` | Foto dengan watermark (dari visualizer/main.py) |
+| `gambar_tanpa_watermark.png` | Foto hasil bersihkan watermark (dari visualizer/main.py) |
