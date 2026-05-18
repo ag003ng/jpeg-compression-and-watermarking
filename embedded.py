@@ -302,7 +302,7 @@ def process_DCT(data : dataImage):
 
 # CITRA WATERMARK VISUAL
 WM_INDEX = 19 # Indeks koefisien frekuensi menengah (Mid-Band) yang aman
-ALPHA = 10 # Kekuatan penyisipan (Gain Factor)
+ALPHA = 30 # Kekuatan penyisipan (Gain Factor)
 
 def embed_visual_binary_watermark(data: dataImage, watermark_path):
     """
@@ -347,7 +347,7 @@ def embed_visual_binary_watermark(data: dataImage, watermark_path):
         new_block = list(block)
         
         # Rumus penyisipan frekuensi menengah (additive): Coeff = Coeff + (Alpha * Piksel_Watermark)
-        new_block[WM_INDEX] = ALPHA * pixel_logo
+        new_block[WM_INDEX] += ALPHA * pixel_logo
         watermarked_dct_y.append(new_block)
         
     return watermarked_dct_y, citra_watermark_grid
