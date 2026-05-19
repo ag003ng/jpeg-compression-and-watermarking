@@ -2,6 +2,8 @@
 
 Projek ini mengimplementasikan **JPEG compression** dari awal (menggunakan Python dan C) serta **penyisipan watermark visual** (citra biner) ke dalam domain frekuensi DCT.
 
+![Alur Embedding](img/embedded.png)
+
 ---
 
 ## Struktur Direktori
@@ -36,15 +38,23 @@ jpeg-compression-and-watermarking/
 - Konversi tiap piksel: RGB → YCbCr (standar ITU-R BT.601)
 - Area padding diisi `Y=0, Cb=128, Cr=128`
 
+![RGB Channels](img/RGB.png)
+![YCbCr Channels](img/YCbCr.png)
+![Padding](img/padding.png)
+
 ### 2. Chroma Subsampling 4:2:0 (`embedded.py:176-214`)
 - Rata-rata blok 2×2 untuk Cb dan Cr
 - Ukuran Cb/Cr menyusut setengah (`sub_width = N_W/2`)
+
+![Chroma Subsampling](img/ori_subsampling.png)
 
 ### 3. DCT 8×8 per Blok (`embedded.py:217-301`)
 - Level shifting (-128)
 - 2D DCT terpisah (Separable): vertikal dulu, lalu horizontal
 - Gunakan lookup table cosinus agar cepat
 - Hasil: 64 koefisien frekuensi per blok (DC + 63 AC)
+
+![DCT & Kuantisasi](img/ori_dct_quantization.png)
 
 ### 4. Sisipkan Watermark Biner (`embedded.py:303-353`)
 - Baca watermark PNG, konversi ke biner (1-bit)
@@ -53,19 +63,25 @@ jpeg-compression-and-watermarking/
 - Koefisien indeks 19 = frekuensi menengah (mid-band)
 - `α = 200` (kekuatan watermark)
 
+![Image dengan Watermark](img/image_w_watermark.png)
+
 ### 5. Kuantisasi (`embedded.py:355-414`)
 - Scale tabel kuantisasi standar JPEG (T.81) berdasarkan `quality`
 - Bagi tiap koefisien DCT dengan nilai tabel kuantisasi
 - Luma pakai `luma_q`, Chroma pakai `chroma_q`
 
-### 6. Zig-zag & DC Difference (`embedded.py:416-449`)
+### 6. Zig-zag, RLE & DC Difference (`embedded.py:416-449`)
 - Urutkan 64 koefisien secara zig-zag (frekuensi rendah → tinggi)
 - Hitung selisih DC antar blok berurutan (DPCM)
+
+![Run-Length Encoding](img/rle.png)
 
 ### 7. Entropy Coding (Huffman) (`embedded.py:451-497`)
 - Gabung semua blok Y, Cb, Cr jadi satu stream
 - Gunakan library `dahuffman` untuk membuat Huffman tree dinamis
 - Simpan hasil kompresi + metadata ke `.pkl`
+
+![Huffman Coding](img/huffman.png)
 
 ---
 
