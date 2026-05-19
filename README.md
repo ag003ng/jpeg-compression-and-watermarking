@@ -124,3 +124,20 @@ Encoder minimalis dari Schier Michael (April 2011), fitur:
 | `ekstrak_watermark.png` | Watermark biner hasil ekstraksi |
 | `gambar_watermark.png` | Foto dengan watermark (dari visualizer/main.py) |
 | `gambar_tanpa_watermark.png` | Foto hasil bersihkan watermark (dari visualizer/main.py) |
+
+---
+
+## Hasil Uji Coba Quality Factor (QF)
+
+| QF | Gambar dengan Watermark | Ekstrak Watermark |
+|----:|------------------------|-------------------|
+| 100 | ![gambar_watermark_QF100](gambar_watermark/gambar_watermark_QF100.jpeg) | ![ekstrak_watermark_QF100](ekstrak_watermark/ekstrak_watermark_QF100.png) |
+| 90 | ![gambar_watermark_QF90](gambar_watermark/gambar_watermark_QF90.jpeg) | ![ekstrak_watermark_QF90](ekstrak_watermark/ekstrak_watermark_QF90.png) |
+| 80 | ![gambar_watermark_QF80](gambar_watermark/gambar_watermark_QF80.jpeg) | ![ekstrak_watermark_QF80](ekstrak_watermark/ekstrak_watermark_QF80.png) |
+| 70 | ![gambar_watermark_QF70](gambar_watermark/gambar_watermark_QF70.jpeg) | ![ekstrak_watermark_QF70](ekstrak_watermark/ekstrak_watermark_QF70.png) |
+| 60 | ![gambar_watermark_QF60](gambar_watermark/gambar_watermark_QF60.jpeg) | ![ekstrak_watermark_QF60](ekstrak_watermark/ekstrak_watermark_QF60.png) |
+| 50 | ![gambar_watermark_QF50](gambar_watermark/gambar_watermark_QF50.jpeg) | ![ekstrak_watermark_QF50](ekstrak_watermark/ekstrak_watermark_QF50.png) |
+| 40 | ![gambar_watermark_QF40](gambar_watermark/gambar_watermark_QF40.jpeg) | ![ekstrak_watermark_QF40](ekstrak_watermark/ekstrak_watermark_QF40.png) |
+| 30 | ![gambar_watermark_QF30](gambar_watermark/gambar_watermark_QF30.jpeg) | ![ekstrak_watermark_QF30](ekstrak_watermark/ekstrak_watermark_QF30.png) |
+| 20 | ![gambar_watermark_QF20](gambar_watermark/gambar_watermark_QF20.jpeg) | ![ekstrak_watermark_QF20](ekstrak_watermark/ekstrak_watermark_QF20.png) |
+| 10 | ![gambar_watermark_QF10](gambar_watermark/gambar_watermark_QF10.jpeg) | ![ekstrak_watermark_QF10](ekstrak_watermark/ekstrak_watermark_QF10.png) |
