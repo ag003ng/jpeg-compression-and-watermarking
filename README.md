@@ -2,6 +2,10 @@
 
 Projek ini mengimplementasikan **JPEG compression** dari awal (menggunakan Python dan C) serta **penyisipan watermark visual** (citra biner) ke dalam domain frekuensi DCT.
 
+| Foto Asli | Watermark |
+|-----------|-----------|
+| ![foto-wajah](foto-wajah.jpeg) | ![watermark](watermark.png) |
+
 ![Alur Embedding](img/embedded.png)
 
 ---
