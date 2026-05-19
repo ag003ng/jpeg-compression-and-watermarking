@@ -161,3 +161,5 @@ Encoder minimalis dari Schier Michael (April 2011), fitur:
 | 30 | ![gambar_watermark_QF30](gambar_watermark/gambar_watermark_QF30.jpeg) | ![ekstrak_watermark_QF30](ekstrak_watermark/ekstrak_watermark_QF30.png) |
 | 20 | ![gambar_watermark_QF20](gambar_watermark/gambar_watermark_QF20.jpeg) | ![ekstrak_watermark_QF20](ekstrak_watermark/ekstrak_watermark_QF20.png) |
 | 10 | ![gambar_watermark_QF10](gambar_watermark/gambar_watermark_QF10.jpeg) | ![ekstrak_watermark_QF10](ekstrak_watermark/ekstrak_watermark_QF10.png) |
+
+Semakin kecil QF, hasil ekstraksi watermark-nya semakin jauh dari gambar asli. Hal ini karena proses kuantisasi yang terjadi setelah penyisipan menggeser dan mengubah informasi di indeks penyisipan watermark secara signifikan.
